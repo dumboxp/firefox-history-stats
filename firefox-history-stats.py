@@ -47,7 +47,7 @@ def main(config):
     df = df[df['domain'].str.contains(config.match)]
 
     # group by 15min
-    df['datetime'] = pd.to_datetime(df['datetime'])
+    #df['datetime'] = pd.to_datetime(df['datetime'])
     grouped = (df.groupby(pd.Grouper(key='datetime', freq='15T'), sort=False)['visit_count']
                .agg([('hits', 'count')]))
     print(grouped.tail())
@@ -58,34 +58,31 @@ def main(config):
                  drawstyle='steps',
                  # alpha = 0.4,
                  y=['hits'],
-                 figsize=(10, 6),
+                 figsize=(10, 3),
                  fontsize=7,
                  # x_compat=True,
                  grid=True,
                  legend=False,
-                 title="Worktime in the Browser",
+                 title="Worktime using Firefox",
                  xlabel="Datetime",
                  ylabel="Hits")
     plt.fill_between(grouped.index, grouped.hits, alpha=0.4, step='pre')
     plt.show()
-
     cur.close()
     con.close()
-
 
 if __name__ == '__main__':
     load_dotenv()
 
     parser = argparse.ArgumentParser(
-        description="Read browsing history of Firefox and create report.",
+        description="Generates statistics about the work-related usage of the Firefox browser.",
         epilog="Author: Roland Ortner")
     parser.add_argument('--db',
-                        help="Path to 'places.sqlite' file of Firefox",
-                        # default="places.sqlite"
+                        help="Full path to the 'places.sqlite' file of Firefox",
                         default='/Users/rolandortner/Library/Application Support/Firefox/Profiles/1zo7bw4o.default/places.sqlite'
                         )
     parser.add_argument('--days',
-                        help="Number of days from the past",
+                        help="Number of past days to consider (default: 2)",
                         default=2
                         )
     parser.add_argument('--match',
@@ -93,7 +90,7 @@ if __name__ == '__main__':
                         default="symptoma|chatgpt|citrix"
                         )
     parser.add_argument('--tz',
-                        help="Timezone",
+                        help="Timezone (default: Europe/Paris)",
                         default='Europe/Paris'
                         )
     args = parser.parse_args()

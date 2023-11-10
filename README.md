@@ -33,7 +33,7 @@ optional arguments:
 
 `python3.9 firefox-history-stats.py -h`
 
-`python3.9 firefox-history-stats.py --match google --days 10
+`python3.9 firefox-history-stats.py --match google --days 10`
 
 
 ## Authors and acknowledgment
