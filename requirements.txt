@@ -1,0 +1,4 @@
+pandas~=1.4.0
+matplotlib~=3.5.3
+times~=0.7
+python-dotenv~=0.20.0
