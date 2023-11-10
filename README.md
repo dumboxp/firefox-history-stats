@@ -2,7 +2,11 @@
 
 ## Description
 
-Command line script to create statistics from the Firefox browsing history. 
+Command line script to create statistics about work-related the usage of the Firefox browser. 
+
+The script will fetch the browsing history from the SQLite database `places.sqlite` of the Firefox browser.
+
+The script will always create a temporary copy of the database to bypass the exclusive lock of Firefox!
 
 ## Visuals
 
@@ -12,7 +16,7 @@ Command line script to create statistics from the Firefox browsing history.
 ## Installation
 
 - Python 3.9
-- Install `requirements.txt`
+- Install dependencies from `requirements.txt`
 - Run the app according to "Usage"
 
 ## Usage
@@ -31,14 +35,14 @@ optional arguments:
 ```
 ### Examples
 
+Help about the command line script:  
 `python3.9 firefox-history-stats.py -h`
 
-`python3.9 firefox-history-stats.py --match google --days 10`
+How often has a search engine being used:  
+`python3.9 firefox-history-stats.py --match google|bing --days 10`
 
+Specify the full path to the Firefox places database:  
+`python3.9 firefox-history-stats.py --db ./../places.sqlite`
 
 ## Authors and acknowledgment
 Roland Ortner (ortner@symptoma.com)
-
-## License
-
-For open source projects, say how it is licensed.
