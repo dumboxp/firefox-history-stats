@@ -29,23 +29,27 @@ def main(config):
     else:
         print(df.tail())
 
+    top = (df.groupby(pd.Grouper(key='domain'), sort=True)['domain'].agg([('count', 'count')]))
+    top = top.sort_values('count')
+    print(top.head())
+    top.plot.barh(alpha = 0.4)
+
     # group by 15min
     grouped = (df.groupby(pd.Grouper(key='datetime', freq='15T'), sort=False)['visit_count'].agg([('hits', 'count')]))
-    print(grouped.tail())
-
     if len(grouped) <= 0:
         print(f"Empty grouped browser statistics!")
         sys.exit()
+    else:
+        print(grouped.tail())
 
     # generate a plot
-    grouped.sort_values('datetime')
+    grouped = grouped.sort_values('datetime')
     grouped.plot(kind='line',
                  drawstyle='steps',
                  # alpha = 0.4,
                  y=['hits'],
                  figsize=(10, 3),
                  fontsize=7,
-                 # x_compat=True,
                  grid=True,
                  legend=False,
                  title="Worktime using Firefox",
@@ -53,6 +57,7 @@ def main(config):
                  ylabel="Hits")
     plt.fill_between(grouped.index, grouped.hits, alpha=0.4, step='pre')
     plt.show()
+
 
 def create_temporary_copy(path):
     temp_dir = tempfile.gettempdir()
