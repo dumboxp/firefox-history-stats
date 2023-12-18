@@ -32,8 +32,15 @@ def main(config):
     top = (df.groupby(pd.Grouper(key='domain'), sort=True)['domain'].agg([('count', 'count')]))
     top = top.sort_values('count')
     print(top.head())
-    top.plot.barh(alpha = 0.4)
-
+    top.plot.barh(
+        title="Top Domains",
+        xlabel="Hits",
+        ylabel="Domain",
+        figsize=(5, 5),
+        alpha = 0.4,
+        grid=False,
+        legend=False
+    )
     # group by 15min
     grouped = (df.groupby(pd.Grouper(key='datetime', freq='15T'), sort=False)['visit_count'].agg([('hits', 'count')]))
     if len(grouped) <= 0:
@@ -72,17 +79,32 @@ def fetch_history(config):
     con.row_factory = sqlite3.Row  # simple row factory
     cur = con.cursor()
     # fetch browsing history from sqlite database
-    sql = """SELECT datetime(moz_historyvisits.visit_date/1000000,'unixepoch') AS datetime, 
-    moz_places.url, 
-    title, 
-    moz_places.visit_count, 
-    moz_places.frecency 
-    FROM moz_places, moz_historyvisits 
-    WHERE moz_places.id = moz_historyvisits.place_id 
-    AND moz_historyvisits.visit_date/1000000 >= (unixepoch() - ?)
-    ORDER BY visit_date"""
-    df = pd.read_sql_query(sql, con, params=[60 * 60 * 24 * int(config.days)])
-    print(f"{len(df)} rows of past {config.days} days read from browser history")
+    if config.date:
+        sql = """SELECT datetime(moz_historyvisits.visit_date/1000000,'unixepoch') AS datetime, 
+        moz_places.url, 
+        title, 
+        moz_places.visit_count, 
+        moz_places.frecency 
+        FROM moz_places, moz_historyvisits 
+        WHERE moz_places.id = moz_historyvisits.place_id 
+        AND date(moz_historyvisits.visit_date/1000000,'unixepoch') = ?
+        ORDER BY visit_date"""
+        df = pd.read_sql_query(sql, con, params=[config.date])
+        print(f"{len(df)} row for date {config.date} read from browser history")
+
+    else:
+        sql = """SELECT datetime(moz_historyvisits.visit_date/1000000,'unixepoch') AS datetime, 
+        moz_places.url, 
+        title, 
+        moz_places.visit_count, 
+        moz_places.frecency 
+        FROM moz_places, moz_historyvisits 
+        WHERE moz_places.id = moz_historyvisits.place_id 
+        AND moz_historyvisits.visit_date/1000000 >= (unixepoch() - ?)
+        ORDER BY visit_date"""
+        df = pd.read_sql_query(sql, con, params=[60 * 60 * 24 * int(config.days)])
+        print(f"{len(df)} rows of past {config.days} days read from browser history")
+
     cur.close()
     con.close()
     return df
@@ -102,9 +124,12 @@ if __name__ == '__main__':
                         help="Number of past days to consider (default: 2)",
                         default=2
                         )
+    parser.add_argument('--date',
+                        help="Exact date (format: yyyy-mm-dd)",
+                        )
     parser.add_argument('--match',
                         help="Regex match for domain filter",
-                        default="symptoma\.|chatgpt|openai|office\.com|husanalytics"
+                        default="symptoma\.|chatgpt|openai|figma|miro|office\.com|husanalytics"
                         )
     parser.add_argument('--tz',
                         help="Timezone (default: Europe/Paris)",
