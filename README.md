@@ -45,4 +45,4 @@ Specify the full path to the Firefox places database:
 `python3.9 firefox-history-stats.py --db ./../places.sqlite`
 
 ## Authors and acknowledgment
-Roland Ortner (ortner@symptoma.com)
+Roland Ortner
